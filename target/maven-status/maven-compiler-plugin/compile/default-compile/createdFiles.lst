@@ -1,0 +1,8 @@
+br\unitins\config\DatabaseConfig.class
+br\unitins\service\MenuService.class
+br\unitins\util\DatabaseConnection.class
+br\unitins\model\AccessPoint.class
+br\unitins\Main.class
+br\unitins\repository\AccessPointRepository.class
+br\unitins\service\WifiScannerService.class
+br\unitins\util\WifiCommandExecutor.class
