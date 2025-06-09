@@ -33,6 +33,8 @@ public class WifiCommandExecutor {
                     currentAP = new AccessPoint();
                     String macAddress = extractMacAddress(line);
                     currentAP.setMacAddress(macAddress);
+                    // Definir scan time para evitar NullPointerException
+                    currentAP.setScanTime(java.time.LocalDateTime.now());
                 }
                 
                 if (currentAP != null) {

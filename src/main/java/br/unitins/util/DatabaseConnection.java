@@ -33,8 +33,8 @@ public class DatabaseConnection {
              Statement stmt = conn.createStatement()) {
             
             // Criar banco se não existir
-            stmt.execute("CREATE DATABASE IF NOT EXISTS hotspot_detector");
-            stmt.execute("USE hotspot_detector");
+            stmt.execute("CREATE DATABASE IF NOT EXISTS hotspot_scanner");
+            stmt.execute("USE hotspot_scanner");
             
             // Dropar tabela se existir para recriar com estrutura correta
             stmt.execute("DROP TABLE IF EXISTS access_points");
@@ -54,7 +54,8 @@ public class DatabaseConnection {
                     wifi_security VARCHAR(50),
                     scan_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     INDEX idx_scan_time (scan_time),
-                    INDEX idx_mac_address (mac_address)
+                    INDEX idx_mac_address (mac_address),
+                    UNIQUE KEY unique_mac_minute (mac_address, scan_time)
                 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
                 """;
             

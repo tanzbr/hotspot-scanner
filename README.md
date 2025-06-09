@@ -5,9 +5,10 @@ Sistema de monitoramento de redes Wi-Fi em tempo real desenvolvido em Java.
 ## Funcionalidades
 
 - **Monitoramento em tempo real**: Escaneia redes Wi-Fi a cada 60 segundos
-- **Consulta histórica**: Permite consultar redes por horário específico
-- **Persistência**: Armazena dados no MariaDB
+- **Consulta histórica por hora e minuto**: Permite consultar redes por horário específico (HH:mm)
+- **Persistência**: Armazena dados no MariaDB com índices otimizados
 - **Interface simples**: Menu interativo via console
+- **Suporte multiplataforma**: Windows (WLAN API) e Linux (iwlist)
 
 ## Informações coletadas
 
@@ -20,6 +21,7 @@ Sistema de monitoramento de redes Wi-Fi em tempo real desenvolvido em Java.
 - Último beacon (ms)
 - Intervalo beacon (TUs)
 - Versão de segurança Wi-Fi
+- Timestamp do escaneamento (truncado para o minuto)
 
 ## Pré-requisitos
 
@@ -108,11 +110,23 @@ java -jar target/hotspot-scanner.jar
    - Digite 'voltar' para retornar ao menu
 
 2. **Consultar horário específico**
-   - Digite uma hora (0-23) para ver redes daquele horário
-   - Mostra dados do dia atual
+   - Digite uma hora (0-23)
+   - Digite os minutos (0-59)
+   - Mostra dados do minuto específico do dia atual
 
 3. **Sair**
    - Encerra a aplicação
+
+### Exemplo de Consulta por Horário
+
+```
+CONSULTA POR HORARIO ESPECIFICO
+============================================================
+Digite a hora (0-23): 14
+Digite os minutos (0-59): 30
+
+Redes encontradas às 14:30:
+```
 
 ### Exemplo de Saída (quando redes são encontradas)
 
@@ -125,7 +139,7 @@ NET_CASA_123         | 34:56:78:9A:BC:DE |  72% |  -55dBm | 11 |  2.4GHz |   234
 FIBRA_5G             | 56:78:9A:BC:DE:F0 |  65% |  -60dBm | 36 |  5.0GHz |   4567ms |  100TUs | WPA3      
 ========================================================================================================================
 Total: 3 redes encontradas
-Ultima atualizacao: 15/12/2024 14:30:25
+Ultima atualizacao: 15/12/2024 14:30:00
 ```
 
 ### Exemplo quando nenhuma rede é encontrada
@@ -142,19 +156,23 @@ Verifique se:
 
 ```
 src/main/java/br/unitins/
-├── Main.java                    # Classe principal
+├── Main.java                    # Classe principal com limpeza de duplicatas
 ├── model/
-│   └── AccessPoint.java         # Modelo de dados
+│   └── AccessPoint.java         # Modelo de dados com scanTime
 ├── service/
-│   ├── WifiScannerService.java  # Serviço de escaneamento
-│   └── MenuService.java         # Serviço de interface
+│   ├── WifiScannerService.java  # Serviço de escaneamento e consultas
+│   └── MenuService.java         # Interface com consulta por hora/minuto
 ├── repository/
-│   └── AccessPointRepository.java # Acesso a dados
+│   └── AccessPointRepository.java # Acesso a dados com prevenção de duplicatas
 ├── util/
-│   ├── DatabaseConnection.java   # Conexão com banco
-│   └── WifiCommandExecutor.java  # Execução de comandos
+│   ├── DatabaseConnection.java   # Conexão com banco e inicialização
+│   ├── WifiScannerFactory.java   # Factory para detecção de plataforma
+│   ├── WifiCommandExecutor.java  # Execução de comandos Linux
+│   └── windows/
+│       ├── WindowsWifiScanner.java # Scanner para Windows
+│       └── WindowsWlanAPI.java     # Interface JNA para Windows WLAN API
 └── config/
-    └── DatabaseConfig.java      # Configurações
+    └── DatabaseConfig.java      # Configurações do banco
 ```
 
 ## Banco de Dados
@@ -175,9 +193,33 @@ CREATE TABLE access_points (
     wifi_security VARCHAR(50),
     scan_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_scan_time (scan_time),
-    INDEX idx_mac_address (mac_address)
-);
+    INDEX idx_mac_address (mac_address),
+    UNIQUE KEY unique_mac_minute (mac_address, scan_time)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
+
+### Características do Banco
+
+- **Prevenção de duplicatas**: Índice único por MAC address e timestamp
+- **Otimização**: Índices em scan_time e mac_address para consultas rápidas
+- **UTF-8**: Suporte completo a caracteres especiais em SSIDs
+- **Limpeza automática**: Remove duplicatas na inicialização
+
+## Sistema de Prevenção de Duplicatas
+
+### Como Funciona
+
+1. **Truncamento de tempo**: Timestamps são truncados para o minuto (sem segundos)
+2. **Verificação antes de salvar**: Sistema verifica se já existe entrada para a rede naquele minuto
+3. **Índice único**: Banco de dados impede duplicatas através de constraint
+4. **Limpeza automática**: Remove duplicatas existentes na inicialização
+
+### Benefícios
+
+- **Consultas mais rápidas**: Menos dados para processar
+- **Economia de espaço**: Banco de dados menor
+- **Dados mais limpos**: Uma entrada por rede por minuto
+- **Melhor performance**: Índices otimizados
 
 ## Troubleshooting
 
@@ -212,6 +254,28 @@ sudo iwlist wlan0 scan
 
 ### Comando iwlist não disponível (Linux)
 Se o comando `iwlist` não estiver disponível, a aplicação mostrará mensagens de erro apropriadas e não encontrará redes Wi-Fi.
+
+### Problemas de Duplicatas
+- O sistema agora previne automaticamente duplicatas
+- Na primeira execução, duplicatas existentes são removidas
+- Consultas retornam apenas uma entrada por rede por minuto
+
+## Melhorias Implementadas
+
+### v1.1 - Sistema Anti-Duplicatas
+- ✅ Prevenção automática de duplicatas por minuto
+- ✅ Limpeza de duplicatas existentes na inicialização
+- ✅ Consulta por hora e minuto específicos
+- ✅ Índice único no banco de dados
+- ✅ Otimização de consultas com GROUP BY
+- ✅ Truncamento de timestamps para minutos
+- ✅ Correção de NullPointerException em scanTime
+
+### v1.0 - Versão Base
+- ✅ Monitoramento em tempo real
+- ✅ Consulta por hora
+- ✅ Suporte Windows e Linux
+- ✅ Persistência em MariaDB
 
 ## Licença
 

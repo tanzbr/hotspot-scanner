@@ -162,6 +162,9 @@ public class WindowsWifiScanner {
             ap.setBeaconInterval(100);
             ap.setLastBeacon(System.currentTimeMillis() % 10000);
             
+            // Definir scan time para evitar NullPointerException
+            ap.setScanTime(java.time.LocalDateTime.now());
+            
             return ap;
             
         } catch (Exception e) {

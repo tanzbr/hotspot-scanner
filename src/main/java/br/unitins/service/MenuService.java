@@ -105,8 +105,8 @@ public class MenuService {
         System.out.println("CONSULTA POR HORARIO ESPECIFICO");
         System.out.println("=".repeat(60));
         
-        System.out.print("Digite a hora (0-23): ");
         try {
+            System.out.print("Digite a hora (0-23): ");
             int hour = Integer.parseInt(scanner.nextLine().trim());
             
             if (hour < 0 || hour > 23) {
@@ -114,12 +114,22 @@ public class MenuService {
                 return;
             }
             
-            List<AccessPoint> accessPoints = wifiService.getAccessPointsByHour(hour);
+            System.out.print("Digite os minutos (0-59): ");
+            int minute = Integer.parseInt(scanner.nextLine().trim());
+            
+            if (minute < 0 || minute > 59) {
+                System.out.println("Minutos invalidos! Devem estar entre 0 e 59.");
+                return;
+            }
+            
+            List<AccessPoint> accessPoints = wifiService.getAccessPointsByHourAndMinute(hour, minute);
             
             if (accessPoints.isEmpty()) {
-                System.out.println("Nenhum dado encontrado para a hora " + hour + ":00 de hoje.");
+                System.out.println("Nenhum dado encontrado para " + 
+                    String.format("%02d:%02d", hour, minute) + " de hoje.");
             } else {
-                System.out.println("\nRedes encontradas às " + hour + ":00:");
+                System.out.println("\nRedes encontradas às " + 
+                    String.format("%02d:%02d", hour, minute) + ":");
                 displayAccessPoints(accessPoints);
             }
             
@@ -127,7 +137,7 @@ public class MenuService {
             scanner.nextLine();
             
         } catch (NumberFormatException e) {
-            System.out.println("Hora invalida! Digite apenas numeros.");
+            System.out.println("Valor invalido! Digite apenas numeros.");
         }
     }
 

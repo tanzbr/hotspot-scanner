@@ -63,6 +63,21 @@ public class WifiScannerService {
         }
     }
 
+    public List<AccessPoint> getAccessPointsByHourAndMinute(int hour, int minute) {
+        try {
+            if (hour < 0 || hour > 23) {
+                throw new IllegalArgumentException("Hora deve estar entre 0 e 23");
+            }
+            if (minute < 0 || minute > 59) {
+                throw new IllegalArgumentException("Minutos devem estar entre 0 e 59");
+            }
+            return repository.getAccessPointsByHourAndMinute(hour, minute);
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar dados por horario e minuto: " + e.getMessage());
+            return List.of();
+        }
+    }
+
     public List<AccessPoint> getAccessPointsByTimeRange(LocalDateTime startTime, LocalDateTime endTime) {
         try {
             return repository.getAccessPointsByTime(startTime, endTime);
@@ -106,6 +121,14 @@ public class WifiScannerService {
             repository.cleanOldRecords(1); // Manter apenas dados do dia atual
         } catch (SQLException e) {
             System.err.println("Erro ao limpar registros antigos: " + e.getMessage());
+        }
+    }
+    
+    public void removeDuplicatesByMinute() {
+        try {
+            repository.removeDuplicatesByMinute();
+        } catch (SQLException e) {
+            System.err.println("Erro ao remover duplicatas: " + e.getMessage());
         }
     }
 

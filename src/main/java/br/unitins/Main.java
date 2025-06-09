@@ -1,6 +1,7 @@
 package br.unitins;
 
 import br.unitins.service.MenuService;
+import br.unitins.service.WifiScannerService;
 import br.unitins.util.DatabaseConnection;
 import br.unitins.util.WifiScannerFactory;
 
@@ -20,6 +21,11 @@ public class Main {
             
             // Inicializar banco de dados
             DatabaseConnection.initializeDatabase();
+            
+            // Limpar duplicatas existentes
+            System.out.println("Limpando registros duplicados...");
+            WifiScannerService wifiService = new WifiScannerService();
+            wifiService.removeDuplicatesByMinute();
             
             // Iniciar aplicação
             MenuService menuService = new MenuService();

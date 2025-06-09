@@ -1,9 +1,9 @@
 package br.unitins.config;
 
 public class DatabaseConfig {
-    public static final String DB_URL = "jdbc:mariadb://localhost:3306/hotspot_detector";
-    public static final String DB_USER = "hotspot_user";
-    public static final String DB_PASSWORD = "hotspot_pass";
+    public static final String DB_URL = "jdbc:mariadb://localhost:3306/hotspot_scanner";
+    public static final String DB_USER = "root";
+    public static final String DB_PASSWORD = "";
     public static final String DB_DRIVER = "org.mariadb.jdbc.Driver";
     
     // Configurações de pool de conexão
