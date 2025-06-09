@@ -103,8 +103,8 @@ public class WifiCommandExecutor {
             
         } catch (IOException | InterruptedException e) {
             System.err.println("Erro ao executar comando iwlist: " + e.getMessage());
-            // Retornar dados simulados para teste
-            return generateMockData();
+            System.err.println("Comando iwlist nao disponivel. Nenhuma rede Wi-Fi encontrada.");
+            return new ArrayList<>();
         }
         
         return accessPoints;
@@ -157,17 +157,5 @@ public class WifiCommandExecutor {
         return matcher.find() ? Integer.parseInt(matcher.group(1)) : 100;
     }
     
-    // Dados simulados para teste quando iwlist não está disponível
-    private static List<AccessPoint> generateMockData() {
-        List<AccessPoint> mockData = new ArrayList<>();
-        
-        mockData.add(new AccessPoint("WiFi_Casa", "AA:BB:CC:DD:EE:01", 85, -45, 6, 2.4, 1234, 100, "WPA2"));
-        mockData.add(new AccessPoint("NET_VIRTUA_123", "AA:BB:CC:DD:EE:02", 72, -55, 11, 2.4, 2345, 100, "WPA2"));
-        mockData.add(new AccessPoint("VIVO-FIBRA", "AA:BB:CC:DD:EE:03", 90, -40, 1, 2.4, 3456, 100, "WPA2"));
-        mockData.add(new AccessPoint("TIM_5G", "AA:BB:CC:DD:EE:04", 65, -60, 36, 5.0, 4567, 100, "WPA3"));
-        mockData.add(new AccessPoint(null, "AA:BB:CC:DD:EE:05", 45, -75, 3, 2.4, 5678, 100, "Open"));
-        
-        System.out.println("Usando dados simulados (iwlist não disponível)");
-        return mockData;
-    }
+
 } 

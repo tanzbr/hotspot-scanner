@@ -24,8 +24,9 @@ Sistema de monitoramento de redes Wi-Fi em tempo real desenvolvido em Java.
 ## Pré-requisitos
 
 ### Sistema Operacional
-- Linux (testado em Ubuntu/Debian)
-- Ferramentas de rede: `iwlist` (geralmente já instalado)
+- **Linux**: Usa `iwlist` (testado em Ubuntu/Debian)
+- **Windows**: Usa Windows WLAN API via JNA (Windows 7+)
+- Detecção automática da plataforma
 
 ### Software
 - Java 17 ou superior
@@ -73,16 +74,28 @@ public static final String DB_PASSWORD = ""; // sua senha
 
 ## Compilação e Execução
 
+### Linux
 ```bash
 # Compilar
 mvn clean compile
 
 # Executar
 mvn exec:java -Dexec.mainClass="br.unitins.Main"
+```
 
-# Ou criar JAR executável
+### Windows
+```cmd
+# Script otimizado (recomendado)
+run-windows.bat
+
+# Ou comando direto
+mvn exec:java -Dexec.mainClass="br.unitins.Main"
+```
+
+### JAR Executável
+```bash
 mvn clean package
-java -jar target/hotspot-scanner-1.0-SNAPSHOT.jar
+java -jar target/hotspot-scanner.jar
 ```
 
 ## Uso
@@ -101,20 +114,28 @@ java -jar target/hotspot-scanner-1.0-SNAPSHOT.jar
 3. **Sair**
    - Encerra a aplicação
 
-### Exemplo de Saída
+### Exemplo de Saída (quando redes são encontradas)
 
 ```
 ========================================================================================================================
 SSID                 | MAC Address       | Qual | Signal | Ch | Freq   | Beacon   | Interval | Security  
 ========================================================================================================================
-WiFi_Casa            | AA:BB:CC:DD:EE:01 |  85% |  -45dBm |  6 |  2.4GHz |   1234ms |  100TUs | WPA2      
-NET_VIRTUA_123       | AA:BB:CC:DD:EE:02 |  72% |  -55dBm | 11 |  2.4GHz |   2345ms |  100TUs | WPA2      
-VIVO-FIBRA           | AA:BB:CC:DD:EE:03 |  90% |  -40dBm |  1 |  2.4GHz |   3456ms |  100TUs | WPA2      
-TIM_5G               | AA:BB:CC:DD:EE:04 |  65% |  -60dBm | 36 |  5.0GHz |   4567ms |  100TUs | WPA3      
-Hidden               | AA:BB:CC:DD:EE:05 |  45% |  -75dBm |  3 |  2.4GHz |   5678ms |  100TUs | Open      
+WiFi_Escritorio      | 12:34:56:78:9A:BC |  85% |  -45dBm |  6 |  2.4GHz |   1234ms |  100TUs | WPA2      
+NET_CASA_123         | 34:56:78:9A:BC:DE |  72% |  -55dBm | 11 |  2.4GHz |   2345ms |  100TUs | WPA2      
+FIBRA_5G             | 56:78:9A:BC:DE:F0 |  65% |  -60dBm | 36 |  5.0GHz |   4567ms |  100TUs | WPA3      
 ========================================================================================================================
-Total: 5 redes encontradas
-Última atualização: 15/12/2024 14:30:25
+Total: 3 redes encontradas
+Ultima atualizacao: 15/12/2024 14:30:25
+```
+
+### Exemplo quando nenhuma rede é encontrada
+
+```
+Nenhuma rede Wi-Fi encontrada.
+Verifique se:
+- O comando 'iwlist' esta disponivel no sistema
+- Existe uma interface de rede Wi-Fi ativa
+- Ha redes Wi-Fi disponiveis na area
 ```
 
 ## Estrutura do Projeto
@@ -179,8 +200,18 @@ sudo iwlist wlan0 scan
 - Verificar credenciais em `DatabaseConfig.java`
 - Verificar se o usuário tem permissões adequadas
 
-### Dados simulados
-Se o comando `iwlist` não estiver disponível, a aplicação usará dados simulados para demonstração.
+### Suporte Multiplataforma
+- **Windows**: Usa Windows WLAN API nativa via JNA
+- **Linux**: Usa comando `iwlist` 
+- **Detecção automática**: O sistema detecta a plataforma e usa o método apropriado
+
+### Troubleshooting Windows
+- Execute como administrador para melhor acesso à WLAN API
+- Verifique se o serviço "WLAN AutoConfig" está rodando
+- Certifique-se de que há uma interface Wi-Fi ativa
+
+### Comando iwlist não disponível (Linux)
+Se o comando `iwlist` não estiver disponível, a aplicação mostrará mensagens de erro apropriadas e não encontrará redes Wi-Fi.
 
 ## Licença
 

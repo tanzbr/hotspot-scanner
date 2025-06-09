@@ -2,9 +2,10 @@ package br.unitins.service;
 
 import br.unitins.model.AccessPoint;
 import br.unitins.repository.AccessPointRepository;
-import br.unitins.util.WifiCommandExecutor;
+import br.unitins.util.WifiScannerFactory;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -23,21 +24,21 @@ public class WifiScannerService {
     public List<AccessPoint> scanAndSaveAccessPoints() {
         try {
             System.out.println("Escaneando redes Wi-Fi...");
-            List<AccessPoint> accessPoints = WifiCommandExecutor.scanWifiNetworks();
+            List<AccessPoint> accessPoints = WifiScannerFactory.scanWifiNetworks();
             
             if (!accessPoints.isEmpty()) {
                 repository.saveAccessPoints(accessPoints);
                 System.out.println("Encontradas " + accessPoints.size() + " redes Wi-Fi");
             } else {
-                System.out.println("Nenhuma rede Wi-Fi encontrada");
+                System.out.println("Nenhuma rede Wi-Fi encontrada no escaneamento");
             }
             
             return accessPoints;
             
         } catch (SQLException e) {
             System.err.println("Erro ao salvar dados no banco: " + e.getMessage());
-            // Retorna os dados mesmo se não conseguir salvar
-            return WifiCommandExecutor.scanWifiNetworks();
+            // Retorna lista vazia se houver erro no banco
+            return new ArrayList<>();
         }
     }
 

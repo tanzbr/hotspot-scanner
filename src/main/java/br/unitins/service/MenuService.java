@@ -133,7 +133,11 @@ public class MenuService {
 
     private void displayAccessPoints(List<AccessPoint> accessPoints) {
         if (accessPoints.isEmpty()) {
-            System.out.println("Nenhuma rede Wi-Fi encontrada.");
+            System.out.println("\nNenhuma rede Wi-Fi encontrada.");
+            System.out.println("Verifique se:");
+            System.out.println("- O comando 'iwlist' esta disponivel no sistema");
+            System.out.println("- Existe uma interface de rede Wi-Fi ativa");
+            System.out.println("- Ha redes Wi-Fi disponiveis na area");
             return;
         }
 
