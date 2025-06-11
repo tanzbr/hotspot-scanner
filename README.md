@@ -58,7 +58,9 @@ sudo mysql_secure_installation
 -- Conectar como root
 sudo mysql -u root -p
 
--- Criar usuário (opcional)
+-- Criar banco e usuário
+CREATE DATABASE hotspot_scanner;
+
 CREATE USER 'hotspot'@'localhost' IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON hotspot_scanner.* TO 'hotspot'@'localhost';
 FLUSH PRIVILEGES;
